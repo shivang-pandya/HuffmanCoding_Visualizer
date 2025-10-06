@@ -1,0 +1,356 @@
+{% extends "base.html" %}
+
+{% block title %}Huffman Visualizer{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Page Header -->
+    <div class="text-center mb-12">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Huffman Tree Visualizer
+        </h1>
+        <p class="text-lg text-gray-600">
+            Enter characters and their frequencies to visualize the Huffman encoding tree
+        </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Input Section -->
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800 flex items-center">
+                <i class="fas fa-keyboard text-blue-600 mr-3"></i>
+                Input Data
+            </h2>
+            
+            <form id="huffman-form" class="space-y-6">
+                <div id="char-freq-inputs" class="space-y-4">
+                    <!-- Dynamic input fields will be added here -->
+                </div>
+                
+                <div class="flex gap-3">
+                    <button type="button" onclick="addCharFreqInput()" 
+                            class="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                        <i class="fas fa-plus mr-2"></i>Add Character
+                    </button>
+                    
+                    <button type="button" onclick="clearInputs()" 
+                            class="bg-gray-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-600 transition-all duration-300 shadow-lg hover:shadow-xl">
+                        <i class="fas fa-trash mr-2"></i>Clear
+                    </button>
+                </div>
+                
+                <button type="submit" 
+                        class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-4 rounded-lg font-bold text-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                    <i class="fas fa-play mr-2"></i>Generate Huffman Tree
+                </button>
+            </form>
+            
+            <!-- Example Button -->
+            <div class="mt-6">
+                <button onclick="loadExample()" 
+                        class="w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-amber-600 hover:to-orange-700 transition-all duration-300 shadow-lg">
+                    <i class="fas fa-lightbulb mr-2"></i>Load Example
+                </button>
+            </div>
+            
+            <!-- Encoding Table -->
+            <div id="encoding-table-container" class="mt-8 hidden">
+                <h3 class="text-xl font-bold mb-4 text-gray-800 flex items-center">
+                    <i class="fas fa-table text-purple-600 mr-3"></i>
+                    Huffman Codes
+                </h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse">
+                        <thead>
+                            <tr class="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
+                                <th class="px-4 py-3 text-left rounded-tl-lg">Character</th>
+                                <th class="px-4 py-3 text-left">Frequency</th>
+                                <th class="px-4 py-3 text-left rounded-tr-lg">Huffman Code</th>
+                            </tr>
+                        </thead>
+                        <tbody id="encoding-table-body" class="divide-y divide-gray-200">
+                            <!-- Table rows will be added here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Visualization Section -->
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800 flex items-center">
+                <i class="fas fa-project-diagram text-purple-600 mr-3"></i>
+                Tree Visualization
+            </h2>
+            
+            <div id="tree-container" class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-4 min-h-[500px] flex items-center justify-center">
+                <div class="text-center text-gray-400">
+                    <i class="fas fa-tree text-6xl mb-4"></i>
+                    <p class="text-lg">Enter characters and frequencies to see the Huffman tree</p>
+                </div>
+            </div>
+            
+            <!-- Legend -->
+            <div class="mt-6 bg-gray-50 rounded-lg p-4">
+                <h4 class="font-bold text-gray-700 mb-3">Legend:</h4>
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-green-500 rounded-full mr-2"></div>
+                        <span class="text-gray-600">Leaf Node (Character)</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-blue-500 rounded-full mr-2"></div>
+                        <span class="text-gray-600">Internal Node</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-12 h-0.5 bg-gray-400 mr-2"></div>
+                        <span class="text-gray-600">0 (Left Edge)</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-12 h-0.5 bg-gray-400 mr-2"></div>
+                        <span class="text-gray-600">1 (Right Edge)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    let charCount = 0;
+    
+    // Add initial input fields
+    window.onload = function() {
+        for (let i = 0; i < 3; i++) {
+            addCharFreqInput();
+        }
+    };
+    
+    function addCharFreqInput() {
+        const container = document.getElementById('char-freq-inputs');
+        const div = document.createElement('div');
+        div.className = 'flex gap-3 items-center char-freq-row';
+        div.innerHTML = `
+            <input type="text" 
+                   maxlength="1" 
+                   placeholder="Char" 
+                   class="w-20 px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors text-center font-mono text-lg"
+                   required>
+            <input type="number" 
+                   min="1" 
+                   placeholder="Frequency" 
+                   class="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
+                   required>
+            <button type="button" 
+                    onclick="this.parentElement.remove()" 
+                    class="bg-red-500 text-white px-4 py-3 rounded-lg hover:bg-red-600 transition-colors">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        container.appendChild(div);
+        charCount++;
+    }
+    
+    function clearInputs() {
+        document.getElementById('char-freq-inputs').innerHTML = '';
+        document.getElementById('encoding-table-container').classList.add('hidden');
+        document.getElementById('tree-container').innerHTML = `
+            <div class="text-center text-gray-400">
+                <i class="fas fa-tree text-6xl mb-4"></i>
+                <p class="text-lg">Enter characters and frequencies to see the Huffman tree</p>
+            </div>
+        `;
+        charCount = 0;
+        for (let i = 0; i < 3; i++) {
+            addCharFreqInput();
+        }
+    }
+    
+    function loadExample() {
+        clearInputs();
+        const examples = [
+            {char: 'a', freq: 5},
+            {char: 'b', freq: 9},
+            {char: 'c', freq: 12},
+            {char: 'd', freq: 13},
+            {char: 'e', freq: 16},
+            {char: 'f', freq: 45}
+        ];
+        
+        const container = document.getElementById('char-freq-inputs');
+        container.innerHTML = '';
+        
+        examples.forEach(ex => {
+            const div = document.createElement('div');
+            div.className = 'flex gap-3 items-center char-freq-row';
+            div.innerHTML = `
+                <input type="text" 
+                       maxlength="1" 
+                       value="${ex.char}"
+                       class="w-20 px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors text-center font-mono text-lg"
+                       required>
+                <input type="number" 
+                       min="1" 
+                       value="${ex.freq}"
+                       class="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
+                       required>
+                <button type="button" 
+                        onclick="this.parentElement.remove()" 
+                        class="bg-red-500 text-white px-4 py-3 rounded-lg hover:bg-red-600 transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            container.appendChild(div);
+        });
+    }
+    
+    document.getElementById('huffman-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const rows = document.querySelectorAll('.char-freq-row');
+        const charFreq = {};
+        
+        rows.forEach(row => {
+            const char = row.querySelector('input[type="text"]').value;
+            const freq = parseInt(row.querySelector('input[type="number"]').value);
+            
+            if (char && freq) {
+                charFreq[char] = freq;
+            }
+        });
+        
+        if (Object.keys(charFreq).length === 0) {
+            alert('Please enter at least one character with frequency');
+            return;
+        }
+        
+        try {
+            const formData = new FormData();
+            formData.append('char_freq', JSON.stringify(charFreq));
+            
+            const response = await fetch('/visualizer', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (data.error) {
+                alert('Error: ' + data.error);
+                return;
+            }
+            
+            // Display encoding table
+            displayEncodingTable(data.codes, charFreq);
+            
+            // Visualize tree
+            visualizeTree(data.tree);
+            
+        } catch (error) {
+            alert('An error occurred: ' + error.message);
+        }
+    });
+    
+    function displayEncodingTable(codes, charFreq) {
+        const tbody = document.getElementById('encoding-table-body');
+        tbody.innerHTML = '';
+        
+        // Sort by frequency (descending)
+        const sortedChars = Object.keys(codes).sort((a, b) => charFreq[b] - charFreq[a]);
+        
+        sortedChars.forEach((char, index) => {
+            const row = document.createElement('tr');
+            row.className = index % 2 === 0 ? 'bg-gray-50' : 'bg-white';
+            row.innerHTML = `
+                <td class="px-4 py-3 font-mono font-bold text-lg">${char}</td>
+                <td class="px-4 py-3">${charFreq[char]}</td>
+                <td class="px-4 py-3 font-mono text-blue-600 font-semibold">${codes[char]}</td>
+            `;
+            tbody.appendChild(row);
+        });
+        
+        document.getElementById('encoding-table-container').classList.remove('hidden');
+    }
+    
+    function visualizeTree(treeData) {
+        const container = document.getElementById('tree-container');
+        container.innerHTML = '';
+        
+        const width = container.clientWidth;
+        const height = 500;
+        
+        const svg = d3.select('#tree-container')
+            .append('svg')
+            .attr('width', width)
+            .attr('height', height);
+        
+        const g = svg.append('g')
+            .attr('transform', 'translate(40, 40)');
+        
+        const tree = d3.tree()
+            .size([width - 80, height - 80]);
+        
+        const root = d3.hierarchy(treeData);
+        tree(root);
+        
+        // Draw links
+        g.selectAll('.link')
+            .data(root.links())
+            .enter()
+            .append('path')
+            .attr('class', 'link')
+            .attr('d', d3.linkVertical()
+                .x(d => d.x)
+                .y(d => d.y))
+            .attr('fill', 'none')
+            .attr('stroke', '#9ca3af')
+            .attr('stroke-width', 2);
+        
+        // Draw edge labels (0 and 1)
+        g.selectAll('.edge-label')
+            .data(root.links())
+            .enter()
+            .append('text')
+            .attr('class', 'edge-label')
+            .attr('x', d => (d.source.x + d.target.x) / 2)
+            .attr('y', d => (d.source.y + d.target.y) / 2)
+            .attr('text-anchor', 'middle')
+            .attr('font-size', '14px')
+            .attr('font-weight', 'bold')
+            .attr('fill', '#ef4444')
+            .text(d => d.target.data.edge_label || '');
+        
+        // Draw nodes
+        const nodes = g.selectAll('.node')
+            .data(root.descendants())
+            .enter()
+            .append('g')
+            .attr('class', 'node')
+            .attr('transform', d => `translate(${d.x},${d.y})`);
+        
+        nodes.append('circle')
+            .attr('r', 25)
+            .attr('fill', d => d.data.is_leaf ? '#10b981' : '#3b82f6')
+            .attr('stroke', '#fff')
+            .attr('stroke-width', 3)
+            .style('filter', 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1))');
+        
+        nodes.append('text')
+            .attr('text-anchor', 'middle')
+            .attr('dy', '-0.3em')
+            .attr('font-size', '16px')
+            .attr('font-weight', 'bold')
+            .attr('fill', '#fff')
+            .text(d => d.data.char || '●');
+        
+        nodes.append('text')
+            .attr('text-anchor', 'middle')
+            .attr('dy', '1.2em')
+            .attr('font-size', '12px')
+            .attr('fill', '#fff')
+            .text(d => `(${d.data.freq})`);
+    }
+</script>
+{% endblock %}

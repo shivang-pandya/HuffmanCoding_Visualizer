@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Huffman Coding{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="text-center mb-16 mt-8">
+    <h1 class="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent animate-pulse">
+        Huffman Coding
+    </h1>
+    <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+        Explore the power of data compression with interactive visualization and file compression tools
+    </p>
+</div>
+
+<!-- Feature Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto mb-16">
+    
+    <!-- Visualizer Card -->
+    <div class="group relative overflow-hidden rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:-translate-y-2">
+        <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 opacity-90 group-hover:opacity-100 transition-opacity duration-500"></div>
+        
+        <div class="relative p-8 text-white">
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                <i class="fas fa-project-diagram text-4xl"></i>
+            </div>
+            
+            <h2 class="text-3xl font-bold mb-4">Huffman Visualizer</h2>
+            
+            <p class="text-white text-opacity-90 mb-6 leading-relaxed">
+                Visualize the Huffman tree construction process. Input characters with their frequencies and see the algorithm in action with an interactive tree diagram.
+            </p>
+            
+            <ul class="space-y-3 mb-8">
+                <li class="flex items-center">
+                    <i class="fas fa-check-circle mr-3 text-green-300"></i>
+                    <span>Interactive tree visualization</span>
+                </li>
+                <li class="flex items-center">
+                    <i class="fas fa-check-circle mr-3 text-green-300"></i>
+                    <span>Character encoding table</span>
+                </li>
+                <li class="flex items-center">
+                    <i class="fas fa-check-circle mr-3 text-green-300"></i>
+                    <span>Step-by-step algorithm</span>
+                </li>
+            </ul>
+            
+            <a href="{{ url_for('visualizer') }}" 
+               class="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-bold hover:bg-opacity-90 transform hover:scale-105 transition-all duration-300 shadow-lg">
+                Start Visualizing
+                <i class="fas fa-arrow-right ml-2"></i>
+            </a>
+        </div>
+    </div>
+    
+    <!-- File Compressor Card -->
+    <div class="group relative overflow-hidden rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:-translate-y-2">
+        <div class="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-600 opacity-90 group-hover:opacity-100 transition-opacity duration-500"></div>
+        
+        <div class="relative p-8 text-white">
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                <i class="fas fa-file-archive text-4xl"></i>
+            </div>
+            
+            <h2 class="text-3xl font-bold mb-4">File Compressor</h2>
+            
+            <p class="text-white text-opacity-90 mb-6 leading-relaxed">
+                Compress multiple files using Huffman coding algorithm. Upload various file types and download a compressed ZIP archive with optimized file sizes.
+            </p>
+            
+            <ul class="space-y-3 mb-8">
+                <li class="flex items-center">
+                    <i class="fas fa-check-circle mr-3 text-green-300"></i>
+                    <span>Multiple file upload</span>
+                </li>
+                <li class="flex items-center">
+                    <i class="fas fa-check-circle mr-3 text-green-300"></i>
+                    <span>Various file formats supported</span>
+                </li>
+                <li class="flex items-center">
+                    <i class="fas fa-check-circle mr-3 text-green-300"></i>
+                    <span>ZIP archive output</span>
+                </li>
+            </ul>
+            
+            <a href="{{ url_for('compressor') }}" 
+               class="inline-block bg-white text-purple-600 px-8 py-3 rounded-lg font-bold hover:bg-opacity-90 transform hover:scale-105 transition-all duration-300 shadow-lg">
+                Compress Files
+                <i class="fas fa-arrow-right ml-2"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Info Section -->
+<div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-8 md:p-12">
+    <h2 class="text-3xl font-bold mb-6 text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        How Huffman Coding Works
+    </h2>
+    
+    <div class="space-y-6 text-gray-700">
+        <div class="flex items-start space-x-4">
+            <div class="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+                1
+            </div>
+            <div>
+                <h3 class="font-bold text-lg mb-2">Calculate Frequencies</h3>
+                <p class="text-gray-600">Count the frequency of each character in the input data.</p>
+            </div>
+        </div>
+        
+        <div class="flex items-start space-x-4">
+            <div class="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+                2
+            </div>
+            <div>
+                <h3 class="font-bold text-lg mb-2">Build Priority Queue</h3>
+                <p class="text-gray-600">Create a min-heap with nodes for each character based on frequency.</p>
+            </div>
+        </div>
+        
+        <div class="flex items-start space-x-4">
+            <div class="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+                3
+            </div>
+            <div>
+                <h3 class="font-bold text-lg mb-2">Construct Huffman Tree</h3>
+                <p class="text-gray-600">Repeatedly merge the two nodes with lowest frequencies until one tree remains.</p>
+            </div>
+        </div>
+        
+        <div class="flex items-start space-x-4">
+            <div class="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+                4
+            </div>
+            <div>
+                <h3 class="font-bold text-lg mb-2">Generate Codes</h3>
+                <p class="text-gray-600">Traverse the tree to assign binary codes - left edges are '0', right edges are '1'.</p>
+            </div>
+        </div>
+        
+        <div class="flex items-start space-x-4">
+            <div class="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+                5
+            </div>
+            <div>
+                <h3 class="font-bold text-lg mb-2">Encode Data</h3>
+                <p class="text-gray-600">Replace each character with its corresponding Huffman code for compression.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

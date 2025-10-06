@@ -1,0 +1,287 @@
+{% extends "base.html" %}
+
+{% block title %}File Compressor{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto">
+    <!-- Page Header -->
+    <div class="text-center mb-12">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            Huffman File Compressor
+        </h1>
+        <p class="text-lg text-gray-600">
+            Compress multiple files using Huffman coding algorithm
+        </p>
+    </div>
+
+    <!-- Main Card -->
+    <div class="bg-white rounded-2xl shadow-2xl p-8 md:p-12">
+        
+        <!-- Upload Section -->
+        <form method="POST" enctype="multipart/form-data" id="upload-form">
+            <div class="mb-8">
+                <label class="block text-2xl font-bold mb-6 text-gray-800 flex items-center">
+                    <i class="fas fa-cloud-upload-alt text-purple-600 mr-3"></i>
+                    Upload Files
+                </label>
+                
+                <!-- Drag and Drop Area -->
+                <div id="drop-zone" 
+                     class="border-4 border-dashed border-gray-300 rounded-2xl p-12 text-center transition-all duration-300 hover:border-purple-500 hover:bg-purple-50 cursor-pointer">
+                    <input type="file" 
+                           id="file-input" 
+                           name="files[]" 
+                           multiple 
+                           accept=".txt,.pdf,.png,.jpg,.jpeg,.gif,.docx,.csv"
+                           class="hidden">
+                    
+                    <div id="drop-zone-content">
+                        <i class="fas fa-file-upload text-6xl text-gray-400 mb-4"></i>
+                        <p class="text-xl font-semibold text-gray-700 mb-2">
+                            Drag & Drop files here
+                        </p>
+                        <p class="text-gray-500 mb-4">or</p>
+                        <button type="button" 
+                                onclick="document.getElementById('file-input').click()"
+                                class="bg-gradient-to-r from-purple-500 to-pink-600 text-white px-8 py-3 rounded-lg font-bold hover:from-purple-600 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                            <i class="fas fa-folder-open mr-2"></i>Browse Files
+                        </button>
+                        <p class="text-sm text-gray-500 mt-4">
+                            Supported formats: .txt, .pdf, .png, .jpg, .jpeg, .gif, .docx, .csv
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Selected Files List -->
+                <div id="file-list" class="mt-6 space-y-3 hidden">
+                    <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
+                        <i class="fas fa-list text-purple-600 mr-2"></i>
+                        Selected Files
+                    </h3>
+                    <div id="file-items" class="space-y-2">
+                        <!-- File items will be added here -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Submit Button -->
+            <div class="flex gap-4">
+                <button type="submit" 
+                        id="compress-btn"
+                        disabled
+                        class="flex-1 bg-gradient-to-r from-purple-500 to-pink-600 text-white px-8 py-4 rounded-lg font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+                    <i class="fas fa-compress-alt mr-2"></i>Compress Files
+                </button>
+                
+                <button type="button" 
+                        onclick="clearFiles()"
+                        class="bg-gray-500 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-600 transition-all duration-300 shadow-lg">
+                    <i class="fas fa-trash mr-2"></i>Clear
+                </button>
+            </div>
+        </form>
+        
+        <!-- Info Section -->
+        <div class="mt-12 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6">
+            <h3 class="text-xl font-bold mb-4 text-gray-800 flex items-center">
+                <i class="fas fa-info-circle text-purple-600 mr-3"></i>
+                How It Works
+            </h3>
+            <ul class="space-y-3 text-gray-700">
+                <li class="flex items-start">
+                    <i class="fas fa-check-circle text-green-500 mr-3 mt-1"></i>
+                    <span>Upload multiple files of supported formats</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-check-circle text-green-500 mr-3 mt-1"></i>
+                    <span>Each file is compressed using Huffman coding algorithm</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-check-circle text-green-500 mr-3 mt-1"></i>
+                    <span>Compressed files are packaged into a single ZIP archive</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-check-circle text-green-500 mr-3 mt-1"></i>
+                    <span>Download the ZIP file containing all compressed files with metadata</span>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Stats Section -->
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white text-center">
+                <i class="fas fa-file text-4xl mb-3 opacity-80"></i>
+                <p class="text-3xl font-bold" id="file-count">0</p>
+                <p class="text-sm opacity-90">Files Selected</p>
+            </div>
+            
+            <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white text-center">
+                <i class="fas fa-hdd text-4xl mb-3 opacity-80"></i>
+                <p class="text-3xl font-bold" id="total-size">0 KB</p>
+                <p class="text-sm opacity-90">Total Size</p>
+            </div>
+            
+            <div class="bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl p-6 text-white text-center">
+                <i class="fas fa-compress text-4xl mb-3 opacity-80"></i>
+                <p class="text-3xl font-bold">Huffman</p>
+                <p class="text-sm opacity-90">Compression Algorithm</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    const fileInput = document.getElementById('file-input');
+    const dropZone = document.getElementById('drop-zone');
+    const fileList = document.getElementById('file-list');
+    const fileItems = document.getElementById('file-items');
+    const compressBtn = document.getElementById('compress-btn');
+    const fileCountEl = document.getElementById('file-count');
+    const totalSizeEl = document.getElementById('total-size');
+    
+    let selectedFiles = [];
+    
+    // File input change event
+    fileInput.addEventListener('change', function(e) {
+        handleFiles(e.target.files);
+    });
+    
+    // Drag and drop events
+    dropZone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        dropZone.classList.add('border-purple-500', 'bg-purple-50');
+    });
+    
+    dropZone.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        dropZone.classList.remove('border-purple-500', 'bg-purple-50');
+    });
+    
+    dropZone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        dropZone.classList.remove('border-purple-500', 'bg-purple-50');
+        handleFiles(e.dataTransfer.files);
+    });
+    
+    dropZone.addEventListener('click', function(e) {
+        if (e.target === dropZone || e.target.closest('#drop-zone-content')) {
+            fileInput.click();
+        }
+    });
+    
+    function handleFiles(files) {
+        const newFiles = Array.from(files);
+        
+        // Add new files to selectedFiles array
+        newFiles.forEach(file => {
+            if (!selectedFiles.find(f => f.name === file.name)) {
+                selectedFiles.push(file);
+            }
+        });
+        
+        updateFileList();
+        updateStats();
+    }
+    
+    function updateFileList() {
+        if (selectedFiles.length === 0) {
+            fileList.classList.add('hidden');
+            compressBtn.disabled = true;
+            return;
+        }
+        
+        fileList.classList.remove('hidden');
+        compressBtn.disabled = false;
+        fileItems.innerHTML = '';
+        
+        selectedFiles.forEach((file, index) => {
+            const fileItem = document.createElement('div');
+            fileItem.className = 'flex items-center justify-between bg-gray-50 p-4 rounded-lg hover:bg-gray-100 transition-colors';
+            
+            const fileSize = formatFileSize(file.size);
+            const fileIcon = getFileIcon(file.name);
+            
+            fileItem.innerHTML = `
+                <div class="flex items-center space-x-3 flex-1">
+                    <i class="${fileIcon} text-2xl text-purple-600"></i>
+                    <div>
+                        <p class="font-semibold text-gray-800">${file.name}</p>
+                        <p class="text-sm text-gray-500">${fileSize}</p>
+                    </div>
+                </div>
+                <button type="button" 
+                        onclick="removeFile(${index})"
+                        class="bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            fileItems.appendChild(fileItem);
+        });
+    }
+    
+    function updateStats() {
+        fileCountEl.textContent = selectedFiles.length;
+        
+        const totalBytes = selectedFiles.reduce((sum, file) => sum + file.size, 0);
+        totalSizeEl.textContent = formatFileSize(totalBytes);
+    }
+    
+    function removeFile(index) {
+        selectedFiles.splice(index, 1);
+        updateFileList();
+        updateStats();
+    }
+    
+    function clearFiles() {
+        selectedFiles = [];
+        fileInput.value = '';
+        updateFileList();
+        updateStats();
+    }
+    
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+    }
+    
+    function getFileIcon(filename) {
+        const ext = filename.split('.').pop().toLowerCase();
+        const iconMap = {
+            'pdf': 'fas fa-file-pdf',
+            'txt': 'fas fa-file-alt',
+            'docx': 'fas fa-file-word',
+            'csv': 'fas fa-file-csv',
+            'jpg': 'fas fa-file-image',
+            'jpeg': 'fas fa-file-image',
+            'png': 'fas fa-file-image',
+            'gif': 'fas fa-file-image'
+        };
+        return iconMap[ext] || 'fas fa-file';
+    }
+    
+    // Form submission
+    document.getElementById('upload-form').addEventListener('submit', function(e) {
+        if (selectedFiles.length === 0) {
+            e.preventDefault();
+            alert('Please select at least one file');
+            return;
+        }
+        
+        // Create a new FormData and add selected files
+        const formData = new FormData();
+        selectedFiles.forEach(file => {
+            formData.append('files[]', file);
+        });
+        
+        // Show loading state
+        compressBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Compressing...';
+        compressBtn.disabled = true;
+    });
+</script>
+{% endblock %}

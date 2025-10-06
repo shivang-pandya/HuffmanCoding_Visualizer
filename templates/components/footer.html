@@ -1,0 +1,61 @@
+<footer class="bg-gray-900 text-white mt-16">
+    <div class="container mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- About Section -->
+            <div>
+                <h3 class="text-xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                    About Huffman Coding
+                </h3>
+                <p class="text-gray-400 text-sm leading-relaxed">
+                    A lossless data compression algorithm that assigns variable-length codes to characters based on their frequencies. 
+                    More frequent characters get shorter codes.
+                </p>
+            </div>
+            
+            <!-- Quick Links -->
+            <div>
+                <h3 class="text-xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                    Quick Links
+                </h3>
+                <ul class="space-y-2 text-sm">
+                    <li>
+                        <a href="{{ url_for('index') }}" class="text-gray-400 hover:text-blue-400 transition-colors duration-300">
+                            <i class="fas fa-chevron-right mr-2 text-xs"></i>Home
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('visualizer') }}" class="text-gray-400 hover:text-blue-400 transition-colors duration-300">
+                            <i class="fas fa-chevron-right mr-2 text-xs"></i>Visualizer
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('compressor') }}" class="text-gray-400 hover:text-blue-400 transition-colors duration-300">
+                            <i class="fas fa-chevron-right mr-2 text-xs"></i>File Compressor
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Contact Info -->
+            <div>
+                <h3 class="text-xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                    Technologies
+                </h3>
+                <div class="flex flex-wrap gap-2">
+                    <span class="px-3 py-1 bg-blue-600 rounded-full text-xs font-medium">Flask</span>
+                    <span class="px-3 py-1 bg-purple-600 rounded-full text-xs font-medium">Python</span>
+                    <span class="px-3 py-1 bg-pink-600 rounded-full text-xs font-medium">Tailwind CSS</span>
+                    <span class="px-3 py-1 bg-indigo-600 rounded-full text-xs font-medium">D3.js</span>
+                    <span class="px-3 py-1 bg-cyan-600 rounded-full text-xs font-medium">Jinja2</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Copyright -->
+        <div class="border-t border-gray-800 mt-8 pt-6 text-center">
+            <p class="text-gray-400 text-sm">
+                &copy; 2025 Huffman Coding Visualizer. Built for DAA Assignment.
+            </p>
+        </div>
+    </div>
+</footer>
