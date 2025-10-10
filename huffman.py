@@ -185,11 +185,18 @@ class HuffmanCoding:
         return tree_dict
 
 
-def compress_file_content(content):
-    """Compress file content using Huffman coding"""
+def compress_file_content(content, original_filename=''):
+    """
+    Compress file content using Huffman coding
+    
+    Args:
+        content: The content to compress (bytes or str)
+        original_filename: Original filename (optional, used to determine file type)
+    """
     huffman = HuffmanCoding()
     
-    if isinstance(content, bytes):
+    is_binary = isinstance(content, bytes)
+    if is_binary:
         # Convert bytes to string representation
         content_str = ''.join(chr(b) for b in content)
     else:
@@ -200,7 +207,8 @@ def compress_file_content(content):
     # Convert encoded string to bytes
     # Pad to make it byte-aligned
     padding = 8 - len(encoded) % 8
-    encoded += '0' * padding
+    if padding != 8:  # Only add padding if needed
+        encoded += '0' * padding
     
     # Convert binary string to bytes
     compressed_bytes = bytearray()
@@ -208,11 +216,18 @@ def compress_file_content(content):
         byte = encoded[i:i+8]
         compressed_bytes.append(int(byte, 2))
     
+    # Get file extension if available
+    original_extension = ''
+    if original_filename and '.' in original_filename:
+        original_extension = original_filename.rsplit('.', 1)[1].lower()
+    
     # Store metadata
     metadata = {
         'codes': codes,
         'padding': padding,
-        'original_size': len(content_str)
+        'original_size': len(content_str),
+        'is_binary': is_binary,
+        'original_extension': original_extension
     }
     
     return bytes(compressed_bytes), metadata
@@ -230,6 +245,83 @@ def decompress_file_content(compressed_bytes, metadata):
     huffman = HuffmanCoding()
     huffman.reverse_codes = {v: k for k, v in metadata['codes'].items()}
     
-    decoded = huffman.decode_text(binary_str)
+    # Convert the decoded characters back to bytes
+    decoded_text = huffman.decode_text(binary_str)
     
-    return decoded
+    # Convert the decoded text (characters) back to bytes
+    if isinstance(metadata.get('is_binary', False), bool) and metadata['is_binary']:
+        try:
+            # For binary files, convert each character code back to byte
+            decoded_bytes = bytes(ord(c) for c in decoded_text)
+            return decoded_bytes
+        except Exception as e:
+            raise ValueError(f"Error converting decoded text to bytes: {e}")
+    
+    # For text files, return as is
+    return decoded_text
+
+def process_compressed_zip(zip_path, extract_to):
+    """
+    Process a zip file containing compressed files and metadata
+    Returns a list of dictionaries containing original filenames and their decompressed content
+    """
+    import zipfile
+    import os
+    import json
+    
+    decompressed_files = []
+    
+    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+        # Create a temporary directory to extract files
+        temp_dir = os.path.join(extract_to, 'temp_decompress')
+        os.makedirs(temp_dir, exist_ok=True)
+        
+        # Extract all files
+        zip_ref.extractall(temp_dir)
+        
+        # Get all .huf files
+        for root, _, files in os.walk(temp_dir):
+            for file in files:
+                if file.endswith('.huf'):
+                    # Get the base filename without extension
+                    base_filename = file[:-4]
+                    huf_path = os.path.join(root, file)
+                    meta_path = os.path.join(root, f"{base_filename}.meta")
+                    
+                    if not os.path.exists(meta_path):
+                        print(f"Warning: Metadata file not found for {file}")
+                        continue
+                    
+                    try:
+                        # Read metadata
+                        with open(meta_path, 'r') as f:
+                            metadata = json.load(f)
+                        
+                        # Read compressed content
+                        with open(huf_path, 'rb') as f:
+                            compressed_content = f.read()
+                        
+                        # Decompress the content
+                        decompressed_content = decompress_file_content(compressed_content, metadata)
+                        
+                        # Add to results
+                        decompressed_files.append({
+                            'filename': base_filename,
+                            'content': decompressed_content,
+                            'is_binary': metadata.get('is_binary', False),
+                            'original_extension': metadata.get('original_extension', '')
+                        })
+                        
+                    except Exception as e:
+                        print(f"Error processing {file}: {str(e)}")
+                        continue
+        
+        # Clean up temporary files
+        for root, dirs, files in os.walk(temp_dir, topdown=False):
+            for file in files:
+                os.remove(os.path.join(root, file))
+            for dir in dirs:
+                os.rmdir(os.path.join(root, dir))
+        os.rmdir(temp_dir)
+    
+    return decompressed_files

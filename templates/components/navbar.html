@@ -42,6 +42,16 @@
                           {% endif %}">
                     <i class="fas fa-file-archive mr-2"></i>File Compressor
                 </a>
+                
+                <a href="{{ url_for('decompressor') }}" 
+                   class="px-6 py-2 rounded-lg font-medium transition-all duration-300
+                          {% if request.endpoint == 'decompressor' %}
+                          bg-gradient-to-r from-green-500 to-teal-600 text-white shadow-lg
+                          {% else %}
+                          text-gray-700 hover:bg-gray-100
+                          {% endif %}">
+                    <i class="fas fa-expand-arrows-alt mr-2"></i>Decompressor
+                </a>
             </div>
             
             <!-- Mobile Menu Button -->
