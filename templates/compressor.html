@@ -167,7 +167,7 @@
     
     dropZone.addEventListener('click', function(e) {
         if (e.target === dropZone || e.target.closest('#drop-zone-content')) {
-            fileInput.click();
+            // Removed redundant fileInput.click();
         }
     });
     
