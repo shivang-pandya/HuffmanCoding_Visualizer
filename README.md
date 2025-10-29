@@ -34,4 +34,3 @@ python app.py
 - Navigate to the File Compressor page
 - Upload multiple files (supports .pdf, .docx, .csv, .jpg, .png, .txt, etc.)
 - Download the compressed zip file
-```
